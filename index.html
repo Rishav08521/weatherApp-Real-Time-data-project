@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale: 1.0">
+    <title>Weather App</title>
+    <style>
+        /* Same styles as your original */
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        body {
+            background: #222;
+        }
+        .card {
+            width: 90%;
+            max-width: 470px;
+            background: linear-gradient(135deg, #00feba, #5b548a);
+            color: #fff;
+            margin: 100px auto 0;
+            border-radius: 20px;
+            padding: 40px 35px;
+            text-align: center;
+        }
+        .date-time {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #f0f0f0;
+        }
+        .search {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+        .search input {
+            border: 0;
+            outline: 0;
+            background: #ebfffc;
+            color: #555;
+            padding: 10px 25px;
+            height: 60px;
+            border-radius: 30px;
+            flex: 1;
+            margin-right: 16px;
+            font-size: 18px;
+        }
+        .search button {
+            border: 0;
+            outline: 0;
+            background: #ebfffc;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+        .search button img {
+            width: 16px;
+        }
+        .chatbot-icon {
+            position: absolute;
+            top: 50%;
+            right: 5px;
+            width: 350px;
+            cursor: pointer;
+            display: block;
+        }
+        .chatbot-icn {
+            position: absolute;
+            top: 100%;
+            right: 5px;
+            width: 80px;
+            cursor: pointer;
+            display: block;
+        }
+        .weather-icon {
+            width: 170px;
+            margin-top: 30px;
+        }
+        .weather h1 {
+            font-size: 80px;
+            font-weight: 500;
+        }
+        .weather h2 {
+            font-size: 45px;
+            font-weight: 400;
+            margin-top: -10px;
+        }
+        .details {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            margin-top: 50px;
+        }
+        .cols {
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+        .cols img {
+            width: 40px;
+            margin-right: 10px;
+        }
+        .humidity, .wind {
+            font-size: 28px;
+            margin-top: -6px;
+        }
+        .error {
+            text-align: left;
+            margin-left: 10px;
+            font-size: 14px;
+            margin-top: 10px;
+            color: red;
+            display: none;
+        }
+        .weather{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- Date and Time Display -->
+        <div class="date-time" id="dateTime"></div>
+
+        <div class="search">
+            <input type="text" placeholder="Enter city name" spellcheck="false">
+            <button><img src="/image/search.png"></button>
+            <!-- Chatbot icon -->
+            <img src="/image/pic18-Photoroom.png" class="chatbot-icn" id="chatbotIcn">
+            <img src="/image/pic17-Photoroom.png" class="chatbot-icon" id="chatbotIcon">
+        </div>
+        <div class="error">
+            <p>Invalid city name</p>
+        </div>
+        <div class="weather">
+            <img src="/image/rain.png" class="weather-icon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">New York</h2>
+            <div class="details">
+                <div class="cols">
+                    <img src="/image/humidity.png">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="cols">
+                    <img src="/image/wind.png">
+                    <div>
+                        <p class="wind">15 km/hr</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const apiKey = "5abdf1494b430f5e105b2db05f83d65a";
+        const apiURL = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const searchBox = document.querySelector(".search input");
+        const searchButton = document.querySelector(".search button");
+        const weatherIcon = document.querySelector(".weather-icon");
+        const dateTimeElement = document.getElementById("dateTime");
+        const chatbotIcon = document.getElementById("chatbotIcon");
+        const chatbotIcn = document.getElementById("chatbotIcn");
+
+
+        async function checkWeather(city) {
+            try {
+                const response = await fetch(`${apiURL}${city}&appid=${apiKey}`);
+                if (!response.ok) {
+                    throw new Error("City not found");
+                }
+                const data = await response.json();
+
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/hr";
+
+                const weatherCondition = data.weather[0].main.toLowerCase();
+                switch (weatherCondition) {
+                    case "clouds":
+                        weatherIcon.src = "/image/clouds.png";
+                        break;
+                    case "mist":
+                        weatherIcon.src = "/image/mist.png";
+                        break;
+                    case "clear":
+                        weatherIcon.src = "/image/clear.png";
+                        break;
+                    case "rain":
+                        weatherIcon.src = "/image/rain.png";
+                        break;
+                    case "drizzle":
+                        weatherIcon.src = "/image/drizzle.png";
+                        break;
+                    default:
+                        weatherIcon.src = "/image/default.png";
+                        break;
+                }
+
+                document.querySelector(".weather").style.display = "block";
+                document.querySelector(".error").style.display = "none";
+                chatbotIcon.style.display = "none"; 
+                chatbotIcn.style.display = "none";
+                 // Hide chatbot icon after search
+            } catch (error) {
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            }
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const formattedDateTime = now.toLocaleString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+            });
+            dateTimeElement.textContent = formattedDateTime;
+        }
+
+        searchButton.addEventListener("click", () => {
+            const city = searchBox.value.trim();
+            if (city) {
+                checkWeather(city);
+            }
+        });
+
+        // Update date and time every second
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Initial call
+    </script>
+</body>
+</html>
